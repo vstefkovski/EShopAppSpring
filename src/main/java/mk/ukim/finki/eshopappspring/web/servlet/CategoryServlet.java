@@ -1,5 +1,8 @@
 package mk.ukim.finki.eshopappspring.web.servlet;
 
+import mk.ukim.finki.eshopappspring.model.Category;
+import mk.ukim.finki.eshopappspring.service.CategoryService;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -10,80 +13,59 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "category-servlet", urlPatterns = "/servlet/category")
+@WebServlet(name = "category_servlet", urlPatterns = "/servlet/category")
 public class CategoryServlet extends HttpServlet {
 
-    class Category {
-        private String name;
+    private final CategoryService categoryService;
 
-        public Category(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
-
-    private List<Category> categoryList = null;
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        this.categoryList = new ArrayList<>();
-        this.categoryList.add(new Category("Software"));
-        this.categoryList.add(new Category("Books"));
-
+    public CategoryServlet(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Category> categories = categoryService.listCategories();
         String ipAddress = req.getRemoteAddr();
         String clientAgent = req.getHeader("User-Agent");
         resp.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = resp.getWriter();
-        out.println("<html>");
-        out.println("<head>");
-        out.println("</head>");
-        out.println("<body>");
-        out.println("<h2>User Info</h2>");
-        out.format("IP address: %s<br/>", ipAddress);
-        out.format("Client Agent: %s", clientAgent);
-        out.println("<h2>Category List</h2>");
-        out.println("<ul>");
-        categoryList.forEach(r ->
-                out.format("<li>%s</li>", r.getName())
-        );
-        out.println("</ul>");
+        PrintWriter writer = resp.getWriter();
+        writer.println("<html>");
+        writer.println("<head>");
+        writer.println("</head>");
+        writer.println("<body>");
+        writer.println("<h2>Info about our request</h2>");
+        writer.format("IP Address:%s, Browser: %s", ipAddress, clientAgent);
+        writer.println("<h2>Categories</h2>");
+        writer.println("<ul>");
+        categories.forEach(r ->
+                writer.format("<li>%s (%s)</li>", r.getName(), r.getDescription()));
+        writer.println("</ul>");
 
-        out.println("<h2>Add New Category</h2>");
+        writer.println("<html>");
+        writer.println("<head>");
+        writer.println("</head>");
+        writer.println("<body>");
+        writer.println("<h3>Add New Category</h3>");
+        writer.println("<form method='post' action='/servlet/category'>" +
+                "<label for='name'>Name:</label><input id='name' type='text' name='name'/>" +
+                "<label for='desc'>Description:</label><input id='desc' type='text' name='description'/>" +
+                "<input type='submit' value='Submit'/>" +
+                "</form>");
+        writer.println("</body>");
+        writer.println("<html>");
 
-        out.println("<form method='POST' action='/servlet/category'/>");
-        out.println("<label for='name'>Name:<label>");
-        out.println("<input id='name' type='text' name='name'/>");
-        out.println("<input type='submit' value='Submit'/>");
-        out.println("</form>");
-
-        out.println("</body>");
-        out.println("</html>");
-        out.flush();
+        writer.println("</body>");
+        writer.println("</html>");
+        writer.flush();
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String categoryName = req.getParameter("name");
-        addCategory(categoryName);
+        String categoryName = (String) req.getParameter("name");
+        String categoryDesc = (String) req.getParameter("description");
+        categoryService.create(categoryName, categoryDesc);
         resp.sendRedirect("/servlet/category");
     }
 
 
-    public void addCategory(String name) {
-        if (name != null && !name.isEmpty()) {
-            this.categoryList.add(new Category(name));
-        }
-    }
 }
