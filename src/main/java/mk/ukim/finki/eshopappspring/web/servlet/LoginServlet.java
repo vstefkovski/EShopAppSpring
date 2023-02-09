@@ -1,5 +1,6 @@
 package mk.ukim.finki.eshopappspring.web.servlet;
 
+import mk.ukim.finki.eshopappspring.exceptions.InvalidArgumentsException;
 import mk.ukim.finki.eshopappspring.exceptions.InvalidUserCredentialException;
 import mk.ukim.finki.eshopappspring.model.User;
 import mk.ukim.finki.eshopappspring.service.AuthService;
@@ -37,26 +38,16 @@ public class LoginServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         User user = null;
-
-//        try {
-//            user = authService.login(username, password);
-//        } catch (InvalidUserCredentialException ex) {
-//            WebContext context = new WebContext(req, resp, req.getServletContext());
-//            context.setVariable("hasError", true);
-//            context.setVariable("error", ex.getMessage());
-//
-//            springTemplateEngine.process("login.html", context, resp.getWriter());
-//        }
-
         try {
             user = authService.login(username, password);
-        } catch (Throwable e) {
+        } catch (InvalidUserCredentialException ex) {
+        } catch (Throwable ex) {
             WebContext context = new WebContext(req, resp, req.getServletContext());
             context.setVariable("hasError", true);
-            context.setVariable("error", e.getMessage());
+            context.setVariable("error", ex.getMessage());
             springTemplateEngine.process("login.html", context, resp.getWriter());
+            return;
         }
-
         req.getSession().setAttribute("user", user);
         resp.sendRedirect("/servlet/thymeleaf/category");
     }
