@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "LoginServlet", urlPatterns = "/login")
+@WebServlet(name = "LoginServlet", urlPatterns = "/servlet/login")
 public class LoginServlet extends HttpServlet {
 
     private final SpringTemplateEngine springTemplateEngine;
@@ -28,7 +28,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         WebContext context = new WebContext(req, resp, req.getServletContext());
-
         springTemplateEngine.process("login.html", context, resp.getWriter());
     }
 
@@ -52,3 +51,4 @@ public class LoginServlet extends HttpServlet {
         resp.sendRedirect("/servlet/thymeleaf/category");
     }
 }
+
