@@ -3,6 +3,7 @@ package mk.ukim.finki.eshopappspring.web.controller;
 import mk.ukim.finki.eshopappspring.model.ShoppingCart;
 import mk.ukim.finki.eshopappspring.model.User;
 import mk.ukim.finki.eshopappspring.service.ShoppingCartService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class ShoppingCartController {
             model.addAttribute("error", error);
         }
 
-        String username = (String) req.getRemoteUser();
+        String username = req.getRemoteUser();
         ShoppingCart shoppingCart = this.shoppingCartService.getActiveShoppingCart(username);
         model.addAttribute("products", this.shoppingCartService.listAllProductsInShoppingCart(shoppingCart.getId()));
         model.addAttribute("products", this.shoppingCartService.listAllProductsInShoppingCart(shoppingCart.getId()));
@@ -35,10 +36,10 @@ public class ShoppingCartController {
     }
 
     @PostMapping("add-product/{id}")
-    public String addProductToShoppingCart(@PathVariable Long id, HttpServletRequest req) {
+    public String addProductToShoppingCart(@PathVariable Long id, HttpServletRequest req, Authentication authentication) {
         try {
-            User user = (User) req.getSession().getAttribute("user");
-            ShoppingCart shoppingCart = this.shoppingCartService.addProductToShoppingCart(user.getUsername(), id);
+            User user = (User) authentication.getPrincipal();
+            this.shoppingCartService.addProductToShoppingCart(user.getUsername(), id);
             return "redirect:/shopping-cart";
         } catch (RuntimeException exception) {
             return "redirect:/shopping-cart?error=" + exception.getMessage();
