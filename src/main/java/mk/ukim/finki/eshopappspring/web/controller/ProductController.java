@@ -6,6 +6,7 @@ import mk.ukim.finki.eshopappspring.model.Product;
 import mk.ukim.finki.eshopappspring.service.CategoryService;
 import mk.ukim.finki.eshopappspring.service.ManufacturerService;
 import mk.ukim.finki.eshopappspring.service.ProductService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,9 @@ public class ProductController {
     private final CategoryService categoryService;
     private final ManufacturerService manufacturerService;
 
-
-    public ProductController(ProductService productService, CategoryService categoryService, ManufacturerService manufacturerService) {
+    public ProductController(ProductService productService,
+                             CategoryService categoryService,
+                             ManufacturerService manufacturerService) {
         this.productService = productService;
         this.categoryService = categoryService;
         this.manufacturerService = manufacturerService;
@@ -29,22 +31,21 @@ public class ProductController {
 
     @GetMapping
     public String getProductPage(@RequestParam(required = false) String error, Model model) {
-        if(error != null && !error.isEmpty()) {
+        if (error != null && !error.isEmpty()) {
             model.addAttribute("hasError", true);
             model.addAttribute("error", error);
         }
         List<Product> products = this.productService.findAll();
         model.addAttribute("products", products);
-        return "products";
+        model.addAttribute("bodyContent", "products");
+        return "master-template";
     }
-
 
     @DeleteMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
         this.productService.deleteById(id);
         return "redirect:/products";
     }
-
 
     @GetMapping("/edit-form/{id}")
     public String editProductPage(@PathVariable Long id, Model model) {
@@ -55,18 +56,21 @@ public class ProductController {
             model.addAttribute("manufacturers", manufacturers);
             model.addAttribute("categories", categories);
             model.addAttribute("product", product);
-            return "add-product";
+            model.addAttribute("bodyContent", "add-product");
+            return "master-template";
         }
         return "redirect:/products?error=ProductNotFound";
     }
 
     @GetMapping("/add-form")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String addProductPage(Model model) {
         List<Manufacturer> manufacturers = this.manufacturerService.findAll();
         List<Category> categories = this.categoryService.listCategories();
         model.addAttribute("manufacturers", manufacturers);
         model.addAttribute("categories", categories);
-        return "add-product";
+        model.addAttribute("bodyContent", "add-product");
+        return "master-template";
     }
 
     @PostMapping("/add")

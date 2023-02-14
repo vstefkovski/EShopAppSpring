@@ -22,23 +22,24 @@ public class LoginController {
     }
 
     @GetMapping
-    public String getLoginPage() {
-        return "login";
+    public String getLoginPage(Model model) {
+        model.addAttribute("bodyContent","login");
+        return "master-template";
     }
 
     @PostMapping
     public String login(HttpServletRequest request, Model model) {
         User user = null;
-
-        try {
-            user = this.authService.login(request.getParameter("username"), request.getParameter("password"));
+        try{
+            user = this.authService.login(request.getParameter("username"),
+                    request.getParameter("password"));
             request.getSession().setAttribute("user", user);
             return "redirect:/home";
-        } catch (Throwable exception) {
+        }
+        catch (Throwable exception) {
             model.addAttribute("hasError", true);
             model.addAttribute("error", exception.getMessage());
-            return "/login";
+            return "login";
         }
     }
-
 }

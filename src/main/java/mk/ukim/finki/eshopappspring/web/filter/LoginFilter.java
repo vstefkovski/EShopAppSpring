@@ -1,6 +1,7 @@
 package mk.ukim.finki.eshopappspring.web.filter;
 
 import mk.ukim.finki.eshopappspring.model.User;
+import org.springframework.context.annotation.Profile;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebFilter
+@Profile("servlet")
 public class LoginFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -26,7 +28,8 @@ public class LoginFilter implements Filter {
 
         String path = request.getServletPath();
 
-        if (!"/login".equals(path) && !"/register".equals(path) && !"/main.css".equals(path) && user==null) {            response.sendRedirect("/login");
+        if (!"/login".equals(path) && !"/register".equals(path) && !"/main.css".equals(path) && user == null) {
+            response.sendRedirect("/login");
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

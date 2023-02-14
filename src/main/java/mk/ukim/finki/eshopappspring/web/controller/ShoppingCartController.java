@@ -26,10 +26,12 @@ public class ShoppingCartController {
             model.addAttribute("error", error);
         }
 
-        User user = (User) req.getSession().getAttribute("user");
-        ShoppingCart shoppingCart = this.shoppingCartService.getActiveShoppingCart(user.getUsername());
+        String username = (String) req.getRemoteUser();
+        ShoppingCart shoppingCart = this.shoppingCartService.getActiveShoppingCart(username);
         model.addAttribute("products", this.shoppingCartService.listAllProductsInShoppingCart(shoppingCart.getId()));
-        return "shopping-cart";
+        model.addAttribute("products", this.shoppingCartService.listAllProductsInShoppingCart(shoppingCart.getId()));
+        model.addAttribute("bodyContent", "shopping-cart");
+        return "master-template";
     }
 
     @PostMapping("add-product/{id}")
