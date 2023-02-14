@@ -1,4 +1,4 @@
-package mk.ukim.finki.eshopappspring.repository;
+package mk.ukim.finki.eshopappspring.repository.impl;
 
 import mk.ukim.finki.eshopappspring.bootstrap.DataHolder;
 import mk.ukim.finki.eshopappspring.model.Manufacturer;
